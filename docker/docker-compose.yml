@@ -1,0 +1,37 @@
+version: "3.6"
+services:
+
+  postgres:
+    image: postgres:latest
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "hybrid"
+      POSTGRES_DB: "pinpointpersonalplates"
+
+  service:
+    depends_on: 
+      - postgres
+    image: springwebservice
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/pinpointpersonalplates
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: hybrid
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+  server:
+    depends_on: 
+      - postgres
+    image: reactcpa
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 81:3000
